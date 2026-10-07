@@ -31,6 +31,11 @@
     <x-site-footer />
     <a class="to-top" href="#top" aria-label="Back to top">↑</a>
 </div>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+</script>
 @if (app(\App\Services\Advertising\AdvertisingService::class)->wantsImpressionBeacon())
     <script>
         document.addEventListener('DOMContentLoaded', function () {

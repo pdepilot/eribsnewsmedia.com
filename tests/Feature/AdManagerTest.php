@@ -30,6 +30,16 @@ class AdManagerTest extends TestCase
         $this->seed();
     }
 
+    public function test_monetag_service_worker_matches_the_supplied_file(): void
+    {
+        $body = file_get_contents(public_path('sw.js'));
+
+        $this->assertIsString($body);
+        $this->assertStringContainsString('"domain": "3nbf4.com"', $body);
+        $this->assertStringContainsString('"zoneId": 11975535', $body);
+        $this->assertStringContainsString("importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')", $body);
+    }
+
     public function test_monetag_verification_meta_is_printed_unchanged(): void
     {
         $this->get('/')
