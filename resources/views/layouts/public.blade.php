@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/png">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @if ($networkHead = app(\App\Services\Advertising\AdvertisingService::class)->networkHeadMarkup())
+        {!! $networkHead !!}
+    @endif
     @if ($adsenseLoader = app(\App\Services\Advertising\AdvertisingService::class)->adsenseLoader())
         {!! $adsenseLoader !!}
     @endif

@@ -30,6 +30,13 @@ class AdManagerTest extends TestCase
         $this->seed();
     }
 
+    public function test_monetag_verification_meta_is_printed_unchanged(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('<meta name="monetag" content="2b1599a262976829a3dc2a5889acbe2d">', false);
+    }
+
     public function test_admin_can_open_the_advertising_dashboard_and_a_reporter_cannot(): void
     {
         $admin = User::query()->where('email', 'admin@eribs.test')->firstOrFail();

@@ -61,8 +61,18 @@ class AdvertisingSeeder extends Seeder
             'configuration' => ['status' => 'reserved'],
         ]);
 
+        AdNetwork::query()->firstOrCreate(['slug' => 'monetag'], [
+            'name' => 'Monetag',
+            'type' => 'monetag',
+            'publisher_id' => null,
+            'enabled' => false,
+            'notes' => 'Inactive demo. The verification meta is printed in the page head. Paste a Monetag ad tag into an ad unit before turning this on.',
+            'configuration' => [
+                'head' => '<meta name="monetag" content="2b1599a262976829a3dc2a5889acbe2d">',
+            ],
+        ]);
+
         foreach ([
-            'monetag' => 'Monetag',
             'adsterra' => 'Adsterra',
             'medianet' => 'Media.net',
         ] as $slug => $name) {

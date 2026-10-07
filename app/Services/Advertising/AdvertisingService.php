@@ -176,6 +176,20 @@ class AdvertisingService
         return filter_var(config('advertising.adsense.auto_ads'), FILTER_VALIDATE_BOOL);
     }
 
+    public function networkHeadMarkup(): string
+    {
+        return AdNetwork::query()
+            ->orderBy('id')
+            ->get()
+            ->map(function (AdNetwork $network): string {
+                $head = $network->configuration['head'] ?? null;
+
+                return is_string($head) ? $head : '';
+            })
+            ->filter(fn (string $head) => $head !== '')
+            ->implode("\n");
+    }
+
     public function adsenseLoader(): ?string
     {
         $id = $this->publisherId();
