@@ -32,7 +32,7 @@
         <section class="staff-vault">
             <div class="staff-card">
                 <div class="staff-mark">
-                    <img src="{{ asset('images/logo.png') }}" alt="ERIBS Media" width="636" height="280">
+                    <img src="{{ asset('images/logo.png').'?v=2' }}" alt="ERIBS Media" width="652" height="263">
                     <p>Newsroom desk</p>
                 </div>
                 <h1>Welcome back.</h1>

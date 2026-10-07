@@ -160,12 +160,16 @@ body.boxed {
     line-height: 1.25;
     letter-spacing: -.02em;
 }
-.ticker-track a, .ticker-track > span:not(.ticker-empty) {
+.ticker-track [data-breaking-item] {
+    display: none;
     position: absolute;
     inset: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.ticker-track [data-breaking-item].is-on {
+    display: block;
 }
 .ticker-empty { position: static; font-size: 18px; color: #8ea0b8; }
 .ticker-track a:hover { color: #f26b1d; }

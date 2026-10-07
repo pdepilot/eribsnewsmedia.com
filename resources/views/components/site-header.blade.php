@@ -30,23 +30,23 @@
 
     <div class="container mast-brand">
         <a class="logo" href="{{ route('home') }}">
-            <img class="brand-logo" src="{{ asset('images/logo.png') }}" alt="{{ $site['siteName'] }}" width="636" height="280">
+            <img class="brand-logo" src="{{ asset('images/logo.png').'?v=2' }}" alt="{{ $site['siteName'] }}" width="652" height="263">
         </a>
-        <div class="wire" x-data="{ i: 0, n: {{ $count }} }" x-init="if (n > 1) setInterval(() => i = (i + 1) % n, 4200)">
-            <span class="wire-ghost" x-show="n > 0" x-text="String(i + 1).padStart(2, '0')"></span>
+        <div class="wire" data-breaking-wire>
+            <span class="wire-ghost" @if($count === 0) hidden @endif data-breaking-ghost>{{ $count > 0 ? '01' : '' }}</span>
             <div class="wire-kicker">
                 <span class="live-dot" aria-hidden="true"></span>
                 <span>Breaking News</span>
                 @if ($count > 1)
-                    <span class="wire-count"><span x-text="String(i + 1).padStart(2, '0')"></span><span x-text="' / ' + String(n).padStart(2, '0')"></span></span>
+                    <span class="wire-count"><span data-breaking-pos>01</span><span> / {{ str_pad((string) $count, 2, '0', STR_PAD_LEFT) }}</span></span>
                 @endif
             </div>
             <div class="ticker-track">
                 @forelse ($site['breakingItems'] as $index => $item)
-                    @if ($item->publicUrl())
-                        <a x-show="i === {{ $index }}" x-cloak x-transition.opacity.duration.400ms href="{{ $item->publicUrl() }}">{{ $item->title }}</a>
+                    @if (filled($item->url))
+                        <a data-breaking-item @class(['is-on' => $index === 0]) href="{{ $item->url }}">{{ $item->title }}</a>
                     @else
-                        <span x-show="i === {{ $index }}" x-cloak x-transition.opacity.duration.400ms>{{ $item->title }}</span>
+                        <span data-breaking-item @class(['is-on' => $index === 0])>{{ $item->title }}</span>
                     @endif
                 @empty
                     <span class="ticker-empty">No active breaking news</span>
@@ -54,11 +54,38 @@
             </div>
             @if ($count > 1)
                 <div class="ticker-nav">
-                    <button type="button" @click="i = (i - 1 + n) % n" aria-label="Previous">←</button>
-                    <button type="button" @click="i = (i + 1) % n" aria-label="Next">→</button>
+                    <button type="button" data-breaking-prev aria-label="Previous headline">←</button>
+                    <button type="button" data-breaking-next aria-label="Next headline">→</button>
                 </div>
             @endif
         </div>
+        <script>
+            document.querySelectorAll('[data-breaking-wire]').forEach(function (wire) {
+                if (wire.dataset.breakingReady === '1') return;
+                wire.dataset.breakingReady = '1';
+                var items = Array.prototype.slice.call(wire.querySelectorAll('[data-breaking-item]'));
+                if (items.length < 2) return;
+                var index = 0;
+                var ghost = wire.querySelector('[data-breaking-ghost]');
+                var pos = wire.querySelector('[data-breaking-pos]');
+                var show = function (next) {
+                    index = (next + items.length) % items.length;
+                    items.forEach(function (el, itemIndex) {
+                        el.classList.toggle('is-on', itemIndex === index);
+                    });
+                    var label = String(index + 1).padStart(2, '0');
+                    if (ghost) ghost.textContent = label;
+                    if (pos) pos.textContent = label;
+                };
+                var prev = wire.querySelector('[data-breaking-prev]');
+                var next = wire.querySelector('[data-breaking-next]');
+                if (prev) prev.addEventListener('click', function () { show(index - 1); });
+                if (next) next.addEventListener('click', function () { show(index + 1); });
+                if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    window.setInterval(function () { show(index + 1); }, 5000);
+                }
+            });
+        </script>
     </div>
 
     <nav class="nav-bar" aria-label="Primary">
@@ -67,7 +94,7 @@
                 <svg width="18" height="14" viewBox="0 0 18 14" fill="currentColor" aria-hidden="true"><rect width="18" height="2"/><rect y="6" width="18" height="2"/><rect y="12" width="18" height="2"/></svg>
             </button>
             <ul class="nav-menu" :class="{ 'is-open': navOpen }">
-                <li class="drawer-logo"><a href="{{ route('home') }}" @click="navOpen = false"><img src="{{ asset('images/logo.png') }}" alt="{{ $site['siteName'] }}"></a></li>
+                <li class="drawer-logo"><a href="{{ route('home') }}" @click="navOpen = false"><img src="{{ asset('images/logo.png').'?v=2' }}" alt="{{ $site['siteName'] }}"></a></li>
                 <li><a class="nav-home @if(request()->routeIs('home')) is-current @endif" href="{{ route('home') }}" @click="navOpen = false">Home</a></li>
                 @foreach ($site['navCategories'] as $category)
                     <li><a class="@if(request()->routeIs('categories.show') && request()->route('category')?->is($category)) is-current @endif" href="{{ route('categories.show', $category) }}">{{ $category->name }}</a></li>

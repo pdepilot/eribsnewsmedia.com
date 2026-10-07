@@ -7,7 +7,7 @@
     <div class="container footer-grid">
         <div class="footer-brand">
             <a class="footer-logo" href="{{ route('home') }}">
-                <img src="{{ asset('images/logo.png') }}" alt="{{ $site['siteName'] }}" width="636" height="280">
+                <img src="{{ asset('images/logo.png').'?v=2' }}" alt="{{ $site['siteName'] }}" width="652" height="263">
             </a>
             <p class="footer-copy">© {{ $site['siteSettings']['copyright'] ?? $site['siteName'] }}</p>
             <p class="footer-place">Lagos · {{ now()->format('l, j F Y') }}</p>

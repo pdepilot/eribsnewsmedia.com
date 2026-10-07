@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('images/favicon.png').'?v=2' }}" type="image/png">
     <title>@yield('title', 'Dashboard') — ERIBS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,7 +41,7 @@
     <aside class="rail" aria-label="Newsroom navigation">
         <input class="rail-toggle-input" id="newsroom-toggle" type="checkbox" aria-controls="newsroom-menu" aria-expanded="false">
         <div class="rail-top">
-            <a class="rail-logo" href="{{ route('admin.dashboard') }}"><img src="{{ asset('images/favicon.png') }}" alt="ERIBS Media" width="52" height="52"></a>
+            <a class="rail-logo" href="{{ route('admin.dashboard') }}"><img src="{{ asset('images/favicon.png').'?v=2' }}" alt="ERIBS Media" width="52" height="52"></a>
             <label class="rail-toggle" for="newsroom-toggle">
                 <span class="rail-toggle-open">Menu</span>
                 <span class="rail-toggle-shut">Close</span>

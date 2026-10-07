@@ -27,6 +27,53 @@ class NewsroomTest extends TestCase
         $this->seed();
     }
 
+    public function test_breaking_headlines_stay_visible_and_can_rotate(): void
+    {
+        BreakingNews::query()->create([
+            'title' => 'First wire headline',
+            'is_active' => true,
+            'starts_at' => now()->subMinute(),
+        ]);
+        BreakingNews::query()->create([
+            'title' => 'Second wire headline',
+            'is_active' => true,
+            'starts_at' => now()->subMinutes(2),
+        ]);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString('First wire headline', $html);
+        $this->assertStringContainsString('Second wire headline', $html);
+        $this->assertStringContainsString('data-breaking-next', $html);
+        $this->assertMatchesRegularExpression('/data-breaking-item class="is-on"[^>]*>First wire headline/', $html);
+        $this->assertDoesNotMatchRegularExpression('/data-breaking-item class="is-on"[^>]*>Second wire headline/', $html);
+        $this->assertStringContainsString('}, 5000);', $html);
+        $this->assertStringNotContainsString('x-cloak', $html);
+
+        $category = Category::query()->where('slug', 'news')->firstOrFail();
+        Article::query()->create([
+            'title' => 'Live breaking desk note',
+            'slug' => 'live-breaking-desk-note',
+            'body' => 'A filed note.',
+            'category_id' => $category->id,
+            'status' => ArticleStatus::Published,
+            'published_at' => now(),
+            'is_breaking' => true,
+        ]);
+        Article::query()->create([
+            'title' => 'Draft breaking note',
+            'slug' => 'draft-breaking-note',
+            'body' => 'Not on the wire yet.',
+            'category_id' => $category->id,
+            'status' => ArticleStatus::Draft,
+            'is_breaking' => true,
+        ]);
+
+        $page = $this->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('Live breaking desk note', $page);
+        $this->assertStringNotContainsString('Draft breaking note', $page);
+    }
+
     public function test_public_pages_and_feeds_render(): void
     {
         $this->get('/')->assertOk()->assertSee('ERIBS Media')->assertSee('Breaking News')->assertSee('name="viewport"', false);

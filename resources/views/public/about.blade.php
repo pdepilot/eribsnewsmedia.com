@@ -15,7 +15,7 @@
         <section class="about-spread">
             <aside class="about-mark">
                 <p class="about-word" aria-hidden="true">ERIBS</p>
-                <img class="about-logo" src="{{ asset('images/logo.png') }}" alt="{{ $siteName }}" width="636" height="280">
+                <img class="about-logo" src="{{ asset('images/logo.png').'?v=2' }}" alt="{{ $siteName }}" width="652" height="263">
                 <p class="about-place">Lagos</p>
                 <p class="about-when"><time datetime="{{ now()->toDateString() }}">{{ now()->timezone('Africa/Lagos')->format('l, j F Y') }}</time></p>
                 @if (filled($tagline))
