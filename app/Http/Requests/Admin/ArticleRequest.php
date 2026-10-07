@@ -56,4 +56,13 @@ class ArticleRequest extends FormRequest
             'scheduled_at' => ['required_if:action,schedule', 'nullable', 'date'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'featured_image.uploaded' => 'The image did not reach the server. Use a JPEG, PNG, GIF, or WebP under 5 MB.',
+            'featured_image.max' => 'The image must be 5 MB or smaller.',
+            'featured_image.mimes' => 'The image must be a JPEG, PNG, GIF, or WebP file.',
+        ];
+    }
 }

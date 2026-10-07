@@ -145,13 +145,34 @@ class Article extends Model
             return $this->featured_image;
         }
 
+        $path = ltrim(str_replace('\\', '/', $this->featured_image), '/');
+
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, strlen('storage/'));
+        }
+
         $disk = Storage::disk('public');
 
         if (! $disk instanceof FilesystemAdapter) {
             return null;
         }
 
-        return $disk->url($this->featured_image);
+        return $this->urlOnCurrentHost($disk->url($path));
+    }
+
+    private function urlOnCurrentHost(string $url): string
+    {
+        $host = request()->getSchemeAndHttpHost();
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if ($host === '' || $path === null || $path === '') {
+            return $url;
+        }
+
+        $absolute = rtrim($host, '/').'/'.ltrim($path, '/');
+        $query = parse_url($url, PHP_URL_QUERY);
+
+        return $query ? $absolute.'?'.$query : $absolute;
     }
 
     public function openGraphImage(): ?string

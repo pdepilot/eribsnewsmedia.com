@@ -4,11 +4,13 @@ namespace App\Services;
 
 use App\Enums\ArticleStatus;
 use App\Models\Article;
+use App\Models\Media;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -42,10 +44,7 @@ class ArticleService
             if ($image) {
                 $this->attachFeatured($article, $image, $user, $data['featured_image_alt'] ?? $article->featured_image_alt);
             } elseif (! empty($data['remove_featured_image'])) {
-                $article->update([
-                    'featured_image' => null,
-                    'featured_media_id' => null,
-                ]);
+                $this->clearFeatured($article);
             } elseif (array_key_exists('featured_image_alt', $data)) {
                 $article->update(['featured_image_alt' => $data['featured_image_alt']]);
             }
@@ -289,12 +288,37 @@ class ArticleService
 
     private function attachFeatured(Article $article, UploadedFile $image, User $user, ?string $alt): void
     {
+        $previousPath = $article->featured_image;
+        $previousMedia = $article->featured_media_id;
         $media = $this->media->store($image, $user, ['alt_text' => $alt]);
         $article->update([
             'featured_media_id' => $media->id,
             'featured_image' => $media->path,
             'featured_image_alt' => $alt ?: $media->alt_text,
         ]);
+        $this->deleteStoredImage($previousPath, $previousMedia, $media->path, $media->id);
+    }
+
+    private function clearFeatured(Article $article): void
+    {
+        $previousPath = $article->featured_image;
+        $previousMedia = $article->featured_media_id;
+        $article->update([
+            'featured_image' => null,
+            'featured_media_id' => null,
+        ]);
+        $this->deleteStoredImage($previousPath, $previousMedia);
+    }
+
+    private function deleteStoredImage(?string $path, ?int $mediaId, ?string $keepPath = null, ?int $keepMediaId = null): void
+    {
+        if (filled($path) && $path !== $keepPath && ! str_starts_with($path, 'http://') && ! str_starts_with($path, 'https://')) {
+            Storage::disk('public')->delete($path);
+        }
+
+        if ($mediaId && $mediaId !== $keepMediaId) {
+            Media::query()->whereKey($mediaId)->delete();
+        }
     }
 
     private function forgetFeeds(): void
