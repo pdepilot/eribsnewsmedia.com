@@ -1,7 +1,8 @@
-@props(['name'])
-@php($fill = app(\App\Services\Advertising\AdvertisingService::class)->resolve($name))
+@props(['name' => null, 'placement' => null])
+@php($slotName = $placement ?: $name)
+@php($fill = $slotName ? app(\App\Services\Advertising\AdvertisingService::class)->resolve($slotName) : null)
 @if ($fill)
-    <aside class="ad-slot ad-slot-{{ str_replace('-', '_', $name) }} ad-only-{{ $fill->device }}" aria-label="{{ $fill->label }}" @if($fill->source === 'direct_campaign') data-ad-seen="{{ route('advertising.impression', $fill->campaign) }}" @endif>
+    <aside class="ad-slot ad-slot-{{ str_replace('-', '_', $slotName) }} ad-only-{{ $fill->device }}" aria-label="{{ $fill->label }}" @if($fill->source === 'direct_campaign') data-ad-seen="{{ route('advertising.impression', $fill->campaign) }}" @endif>
         <p class="ad-label">{{ $fill->label }}</p>
         @if ($fill->source === 'direct_campaign' && $fill->campaign?->creative)
             @php($creative = $fill->campaign->creative)
@@ -32,6 +33,8 @@
             {!! $fill->unit->markup !!}
         @elseif ($fill->source === 'adsense')
             {!! app(\App\Services\Advertising\AdvertisingService::class)->adsenseMarkup($fill->unit) !!}
+        @elseif ($fill->source === 'fallback')
+            {!! $fill->unit?->fallback_code !!}
         @endif
     </aside>
 @endif

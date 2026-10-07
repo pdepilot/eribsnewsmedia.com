@@ -38,7 +38,19 @@
             @endif
             <x-ad-slot name="article-after-intro" />
             <x-ad placement="article_top" />
-            <div class="article-body">{!! nl2br(e($article->body)) !!}</div>
+            <div class="article-body">
+                @foreach (preg_split("/\r\n\r\n|\n\n/", trim((string) $article->body)) ?: [] as $index => $paragraph)
+                    @if (trim($paragraph) !== '')
+                        <p>{!! nl2br(e(trim($paragraph))) !!}</p>
+                        @if ($index === 1)
+                            <x-ad-slot placement="article-after-paragraph-2" />
+                        @endif
+                        @if ($index === 3)
+                            <x-ad-slot placement="article-after-paragraph-4" />
+                        @endif
+                    @endif
+                @endforeach
+            </div>
             <x-ad placement="article_middle" />
             @if ($article->tags->isNotEmpty())
                 <div class="tags">

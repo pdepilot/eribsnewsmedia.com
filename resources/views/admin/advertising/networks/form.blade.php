@@ -21,9 +21,8 @@
         <label class="grid gap-1 text-sm">Public publisher ID <input name="publisher_id" value="{{ old('publisher_id', $network->publisher_id) }}" placeholder="ca-pub-" class="rounded border border-zinc-300 px-3 py-2"></label>
         <label class="grid gap-1 text-sm">Priority <input type="number" name="priority" value="{{ old('priority', $network->priority) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
         <label class="grid gap-1 text-sm">Configuration JSON <textarea name="configuration" rows="5" class="rounded border border-zinc-300 px-3 py-2 font-mono text-xs">{{ old('configuration', $network->configuration ? json_encode($network->configuration, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : '') }}</textarea></label>
-        <label class="grid gap-1 text-sm">Private credential <input name="credentials" type="password" autocomplete="new-password" class="rounded border border-zinc-300 px-3 py-2" placeholder="{{ $network->hasCredentials() ? 'Saved. Leave blank to keep it.' : 'Optional' }}"></label>
         @if ($network->hasCredentials())
-            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="clear_credentials" value="1"> Remove the saved credential</label>
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="clear_credentials" value="1"> Remove the saved credential. New API keys are not stored.</label>
         @endif
         <input type="hidden" name="enabled" value="0">
         <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="enabled" value="1" @checked(old('enabled', $network->enabled))> Enabled</label>

@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AdPlacement extends Model
 {
-    public const DEVICES = ['all', 'desktop', 'mobile'];
+    public const DEVICES = ['all', 'desktop', 'tablet', 'mobile'];
 
     protected $fillable = [
         'name',
         'slug',
+        'location',
         'description',
         'device',
         'enabled',

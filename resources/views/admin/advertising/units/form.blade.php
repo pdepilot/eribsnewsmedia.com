@@ -40,8 +40,19 @@
                 @endforeach
             </select>
         </label>
+        <label class="grid gap-1 text-sm">Page
+            <select name="page_target" class="rounded border border-zinc-300 px-3 py-2">
+                @foreach (\App\Services\Advertising\AdManagerService::PAGES as $page)
+                    <option value="{{ $page }}" @selected(old('page_target', $unit->page_target ?: 'all') === $page)>{{ $page }}</option>
+                @endforeach
+            </select>
+        </label>
         <label class="grid gap-1 text-sm">Priority <input type="number" name="priority" value="{{ old('priority', $unit->priority) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
-        <label class="grid gap-1 text-sm">Third-party markup <textarea name="markup" rows="6" class="rounded border border-zinc-300 px-3 py-2 font-mono text-xs">{{ old('markup', $unit->markup) }}</textarea></label>
+        <label class="grid gap-1 text-sm">Weight <input type="number" name="weight" min="1" value="{{ old('weight', $unit->weight ?: 100) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Starts <input type="datetime-local" name="starts_at" value="{{ old('starts_at', $unit->starts_at?->format('Y-m-d\TH:i')) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Ends <input type="datetime-local" name="ends_at" value="{{ old('ends_at', $unit->ends_at?->format('Y-m-d\TH:i')) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Network code <textarea name="markup" rows="6" class="rounded border border-zinc-300 px-3 py-2 font-mono text-xs">{{ old('markup', $unit->markup) }}</textarea></label>
+        <label class="grid gap-1 text-sm">Fallback code <textarea name="fallback_code" rows="4" class="rounded border border-zinc-300 px-3 py-2 font-mono text-xs">{{ old('fallback_code', $unit->fallback_code) }}</textarea></label>
         <input type="hidden" name="responsive" value="0">
         <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="responsive" value="1" @checked(old('responsive', $unit->responsive))> Responsive</label>
         <input type="hidden" name="enabled" value="0">

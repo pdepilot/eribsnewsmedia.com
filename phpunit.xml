@@ -32,5 +32,9 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="ADS_ENABLED" value="true"/>
+        <env name="ADSENSE_ENABLED" value="false"/>
+        <env name="ADSENSE_PUBLISHER_ID" value=""/>
+        <env name="ADSENSE_AUTO_ADS" value="false"/>
     </php>
 </phpunit>

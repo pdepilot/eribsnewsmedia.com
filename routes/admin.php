@@ -43,10 +43,13 @@ Route::middleware(['auth', 'newsroom'])->prefix('portal')->name('admin.')->group
 
     Route::prefix('advertising')->name('advertising.')->group(function () {
         Route::get('/', [AdvertisingController::class, 'index'])->name('index');
+        Route::get('analytics', [AdvertisingController::class, 'analytics'])->name('analytics');
         Route::get('settings', [AdvertisingController::class, 'settings'])->name('settings');
         Route::put('settings', [AdvertisingController::class, 'updateSettings'])->name('settings.update');
         Route::get('ads-txt', [AdvertisingController::class, 'adsTxt'])->name('ads-txt');
         Route::put('ads-txt', [AdvertisingController::class, 'updateAdsTxt'])->name('ads-txt.update');
+        Route::post('ads-txt/entries', [AdvertisingController::class, 'storeAdsTxtEntry'])->name('ads-txt.entries.store');
+        Route::delete('ads-txt/entries/{entry}', [AdvertisingController::class, 'destroyAdsTxtEntry'])->name('ads-txt.entries.destroy');
 
         Route::get('networks', [AdInventoryController::class, 'networks'])->name('networks.index');
         Route::get('networks/create', [AdInventoryController::class, 'createNetwork'])->name('networks.create');

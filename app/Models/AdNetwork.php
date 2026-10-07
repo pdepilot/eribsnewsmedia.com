@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AdNetwork extends Model
 {
-    public const TYPES = ['adsense', 'third_party', 'direct', 'ad_manager'];
+    public const TYPES = ['adsense', 'third_party', 'direct', 'ad_manager', 'monetag', 'adsterra', 'medianet', 'custom'];
 
     protected $fillable = [
         'name',
         'slug',
         'type',
+        'website_url',
         'publisher_id',
+        'notes',
         'enabled',
         'priority',
         'configuration',

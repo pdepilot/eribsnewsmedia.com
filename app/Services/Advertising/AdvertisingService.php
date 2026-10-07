@@ -3,7 +3,9 @@
 namespace App\Services\Advertising;
 
 use App\Models\AdCampaign;
+use App\Models\AdClick;
 use App\Models\AdEvent;
+use App\Models\AdImpression;
 use App\Models\AdNetwork;
 use App\Models\AdPlacement;
 use App\Models\AdUnit;
@@ -96,6 +98,7 @@ class AdvertisingService
             'ad_placement_id' => $campaign->ad_placement_id,
             'type' => 'impression',
         ]);
+        $this->recordTraffic(AdImpression::class, $campaign->ad_placement_id, $campaign->id, null);
     }
 
     public function recordClick(AdCampaign $campaign): string
@@ -113,6 +116,7 @@ class AdvertisingService
             'ad_placement_id' => $campaign->ad_placement_id,
             'type' => 'click',
         ]);
+        $this->recordTraffic(AdClick::class, $campaign->ad_placement_id, $campaign->id, null);
 
         return $campaign->click_url;
     }
@@ -237,80 +241,89 @@ class AdvertisingService
             return null;
         }
 
+        $manager = app(AdManagerService::class);
         $device = $placement->device ?? 'all';
 
-        $campaign = AdCampaign::query()
-            ->with('creative')
-            ->where('status', 'active')
-            ->when($placement, fn ($query) => $query->where('ad_placement_id', $placement->id))
-            ->when(! $placement, fn ($query) => $query->whereRaw('0 = 1'))
-            ->where(function ($query) {
-                $query->whereNull('start_at')->orWhere('start_at', '<=', now());
-            })
-            ->where(function ($query) {
-                $query->whereNull('end_at')->orWhere('end_at', '>=', now());
-            })
-            ->orderByDesc('priority')
-            ->orderByDesc('id')
-            ->first();
+        if ($placement && ! $manager->placementMatchesDevice($placement)) {
+            return null;
+        }
 
-        if ($campaign?->creative) {
-            return new AdFill('direct_campaign', 'Sponsored', $device, campaign: $campaign);
+        $campaign = $placement ? $manager->selectCampaign($placement) : null;
+
+        if ($campaign?->creative && ($campaign->creative->status ?? 'active') === 'active') {
+            return $this->accept(new AdFill('direct_campaign', 'Sponsored', $device, campaign: $campaign));
         }
 
         $legacy = Advertisement::query()->active()->where('placement', $slug)->orderByDesc('id')->first();
 
         if ($legacy && ($legacy->type === 'image' ? filled($legacy->imageUrl()) : filled($legacy->code))) {
-            return new AdFill('legacy', 'Advertisement', $device, legacy: $legacy);
+            return $this->accept(new AdFill('legacy', 'Advertisement', $device, legacy: $legacy));
         }
 
-        $thirdParty = $this->unitFor($placement, 'third_party');
+        $thirdParty = $placement
+            ? $manager->selectUnit($placement, ['third_party', 'monetag', 'adsterra', 'medianet', 'custom', 'direct'])
+            : null;
 
         if ($thirdParty && filled($thirdParty->markup)) {
             $unitDevice = $this->combinedDevice($device, $thirdParty->device);
 
             if ($unitDevice !== null) {
-                return new AdFill('third_party', 'Advertisement', $unitDevice, unit: $thirdParty);
+                return $this->accept(new AdFill('third_party', 'Advertisement', $unitDevice, unit: $thirdParty));
             }
         }
 
-        $adsense = $this->unitFor($placement, 'adsense');
+        $adsense = ($placement && $this->adsenseOn())
+            ? $manager->selectUnit($placement, ['adsense'], false)
+            : null;
 
-        if ($adsense && $this->adsenseOn() && $this->adsenseMarkup($adsense) !== null) {
+        if ($adsense && $this->adsenseMarkup($adsense) !== null) {
             $unitDevice = $this->combinedDevice($device, $adsense->device);
 
             if ($unitDevice !== null) {
-                return new AdFill('adsense', 'Advertisement', $unitDevice, unit: $adsense);
+                return $this->accept(new AdFill('adsense', 'Advertisement', $unitDevice, unit: $adsense));
             }
+        }
+
+        $fallback = $placement ? $manager->selectFallback($placement) : null;
+
+        if ($fallback && filled($fallback->fallback_code)) {
+            return $this->accept(new AdFill('fallback', 'Advertisement', $device, unit: $fallback));
         }
 
         return null;
     }
 
-    private function unitFor(?AdPlacement $placement, string $type): ?AdUnit
+    private function accept(AdFill $fill): ?AdFill
     {
-        if (! $placement) {
+        $max = (int) $this->settings->get('ads_max_per_page', '0');
+        $shown = (int) request()->attributes->get('ad-shown', 0);
+
+        if ($max > 0 && $shown >= $max) {
             return null;
         }
 
-        return AdUnit::query()
-            ->with('network')
-            ->select('ad_units.*')
-            ->join('ad_networks', 'ad_networks.id', '=', 'ad_units.ad_network_id')
-            ->where('ad_units.ad_placement_id', $placement->id)
-            ->where('ad_units.enabled', true)
-            ->where('ad_networks.type', $type)
-            ->when($type === 'adsense', function ($query) {
-                if (! $this->adsenseOn()) {
-                    $query->whereRaw('0 = 1');
-                }
-            }, function ($query) {
-                $query->where('ad_networks.enabled', true);
-            })
-            ->orderByDesc('ad_networks.priority')
-            ->orderByDesc('ad_units.priority')
-            ->orderByDesc('ad_units.id')
-            ->first();
+        request()->attributes->set('ad-shown', $shown + 1);
+
+        return $fill;
+    }
+
+    private function recordTraffic(string $model, ?int $placementId, ?int $campaignId, ?int $unitId): void
+    {
+        if ($this->settings->get('ads_analytics_enabled', '1') === '0') {
+            return;
+        }
+
+        $manager = app(AdManagerService::class);
+
+        $model::query()->create([
+            'ad_unit_id' => $unitId,
+            'ad_placement_id' => $placementId,
+            'ad_campaign_id' => $campaignId,
+            'page_type' => $manager->currentPage(),
+            'device' => $manager->currentDevice(),
+            'occurred_at' => now(),
+            ...$manager->visitorHashes(),
+        ]);
     }
 
     private function combinedDevice(string $placementDevice, ?string $unitDevice): ?string

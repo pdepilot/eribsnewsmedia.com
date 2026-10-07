@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdsTxtEntry;
 use App\Models\AdsTxtLine;
 use Illuminate\Http\Response;
 
@@ -9,12 +10,20 @@ class AdsTxtController extends Controller
 {
     public function show(): Response
     {
-        $body = AdsTxtLine::query()
+        $lines = AdsTxtLine::query()
             ->where('enabled', true)
             ->orderBy('sort_order')
             ->orderBy('id')
-            ->pluck('line')
-            ->implode("\n");
+            ->pluck('line');
+
+        $entries = AdsTxtEntry::query()
+            ->where('status', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (AdsTxtEntry $entry) => $entry->line());
+
+        $body = $lines->concat($entries)->implode("\n");
 
         if ($body !== '') {
             $body .= "\n";

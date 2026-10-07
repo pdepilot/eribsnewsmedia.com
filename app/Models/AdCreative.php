@@ -16,10 +16,12 @@ class AdCreative extends Model
         'name',
         'type',
         'image_path',
+        'destination_url',
         'html',
         'alt_text',
         'width',
         'height',
+        'status',
     ];
 
     public function advertiser(): BelongsTo

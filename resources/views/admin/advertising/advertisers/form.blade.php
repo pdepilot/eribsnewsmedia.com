@@ -8,9 +8,12 @@
         @if ($advertiser->exists) @method('PUT') @endif
         <label class="grid gap-1 text-sm">Name <input name="name" value="{{ old('name', $advertiser->name) }}" class="rounded border border-zinc-300 px-3 py-2" required></label>
         <label class="grid gap-1 text-sm">Company <input name="company" value="{{ old('company', $advertiser->company) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Contact <input name="contact_name" value="{{ old('contact_name', $advertiser->contact_name) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
         <label class="grid gap-1 text-sm">Email <input type="email" name="email" value="{{ old('email', $advertiser->email) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
         <label class="grid gap-1 text-sm">Phone <input name="phone" value="{{ old('phone', $advertiser->phone) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
         <label class="grid gap-1 text-sm">Website <input name="website" value="{{ old('website', $advertiser->website) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Address <input name="address" value="{{ old('address', $advertiser->address) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Notes <textarea name="notes" rows="3" class="rounded border border-zinc-300 px-3 py-2">{{ old('notes', $advertiser->notes) }}</textarea></label>
         <label class="grid gap-1 text-sm">Status
             <select name="status" class="rounded border border-zinc-300 px-3 py-2">
                 @foreach (\App\Models\Advertiser::STATUSES as $status)

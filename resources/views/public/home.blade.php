@@ -32,6 +32,7 @@
     </section>
 
     <div class="container ad-row">
+        <x-ad-slot placement="homepage-after-featured" />
         <x-ad-slot name="homepage-after-hero" />
         <x-ad placement="homepage_top" />
     </div>

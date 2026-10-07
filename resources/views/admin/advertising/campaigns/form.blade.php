@@ -30,7 +30,10 @@
         </label>
         <label class="grid gap-1 text-sm">Starts <input type="datetime-local" name="start_at" value="{{ old('start_at', $campaign->start_at?->format('Y-m-d\TH:i')) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
         <label class="grid gap-1 text-sm">Ends <input type="datetime-local" name="end_at" value="{{ old('end_at', $campaign->end_at?->format('Y-m-d\TH:i')) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Budget <input type="number" step="0.01" min="0" name="budget" value="{{ old('budget', $campaign->budget) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
         <label class="grid gap-1 text-sm">Priority <input type="number" name="priority" value="{{ old('priority', $campaign->priority) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Weight <input type="number" min="1" name="weight" value="{{ old('weight', $campaign->weight ?: 100) }}" class="rounded border border-zinc-300 px-3 py-2"></label>
+        <label class="grid gap-1 text-sm">Notes <textarea name="notes" rows="3" class="rounded border border-zinc-300 px-3 py-2">{{ old('notes', $campaign->notes) }}</textarea></label>
         <label class="grid gap-1 text-sm">Status
             <select name="status" class="rounded border border-zinc-300 px-3 py-2">
                 @foreach (\App\Models\AdCampaign::STATUSES as $status)

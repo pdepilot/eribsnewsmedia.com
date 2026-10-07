@@ -9,12 +9,12 @@
     <p class="mb-4 max-w-2xl text-sm text-zinc-600">Direct campaign counts below are recorded by this site. Google AdSense revenue is not shown here, and AdSense is not treated as connected until a real publisher ID is saved and confirmed in your AdSense account.</p>
     <dl class="mb-6 grid gap-3 sm:grid-cols-3">
         @foreach ([
-            'Active campaigns' => $campaigns,
             'Active networks' => $networks,
-            'Placements' => $placements,
-            'Impressions today' => $impressions,
-            'Clicks today' => $clicks,
-            'AdSense publisher ID' => $publisherSaved ? 'Saved' : 'Not set',
+            'Active ad units' => $units,
+            'Active campaigns' => $campaigns,
+            "Today's impressions" => $impressions,
+            "Today's clicks" => $clicks,
+            'CTR' => $ctr.'%',
         ] as $label => $value)
             <div class="rounded bg-white px-4 py-3 shadow-sm">
                 <dt class="text-xs uppercase tracking-wide text-zinc-500">{{ $label }}</dt>
@@ -23,7 +23,19 @@
         @endforeach
     </dl>
     <p class="mb-2 text-sm text-zinc-500">AdSense switch: {{ $adsenseOn ? 'On' : 'Off' }}. {{ $publisherSaved ? 'A publisher ID is saved.' : 'No publisher ID is saved.' }}</p>
-    <h2 class="mb-2 font-[Rubik,sans-serif] text-lg">Campaigns ending within 7 days</h2>
+    <h2 class="mb-2 font-[Rubik,sans-serif] text-lg">Top placements today</h2>
+    @forelse ($topPlacements as $row)
+        <p class="text-sm">Placement {{ $row->ad_placement_id }} · {{ $row->total }} impressions</p>
+    @empty
+        <p class="mb-4 text-sm text-zinc-500">No impressions yet today.</p>
+    @endforelse
+    <h2 class="mb-2 mt-4 font-[Rubik,sans-serif] text-lg">Recent campaigns</h2>
+    @forelse ($recentCampaigns as $campaign)
+        <p class="text-sm">{{ $campaign->name }} · {{ $campaign->status }}</p>
+    @empty
+        <p class="mb-4 text-sm text-zinc-500">No campaigns yet.</p>
+    @endforelse
+    <h2 class="mb-2 mt-4 font-[Rubik,sans-serif] text-lg">Campaigns ending within 7 days</h2>
     @if ($expiring->isEmpty())
         <p class="text-sm text-zinc-500">None.</p>
     @else

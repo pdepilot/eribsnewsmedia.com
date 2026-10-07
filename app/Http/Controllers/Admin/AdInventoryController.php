@@ -9,8 +9,10 @@ use App\Models\AdNetwork;
 use App\Models\AdPlacement;
 use App\Models\AdUnit;
 use App\Models\Advertiser;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -338,10 +340,9 @@ class AdInventoryController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'slug' => ['nullable', 'string', 'max:80', Rule::unique('ad_networks', 'slug')->ignore($network->id)],
             'type' => ['required', Rule::in(AdNetwork::TYPES)],
-            'publisher_id' => ['nullable', 'string', 'regex:/^ca-pub-\d{8,20}$/'],
+            'publisher_id' => ['nullable', 'string', 'max:80'],
             'priority' => ['nullable', 'integer', 'min:0', 'max:1000'],
             'configuration' => ['nullable', 'string', 'max:5000'],
-            'credentials' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $configuration = null;
@@ -370,8 +371,6 @@ class AdInventoryController extends Controller
 
         if ($request->boolean('clear_credentials')) {
             $payload['credentials'] = null;
-        } elseif (filled($data['credentials'] ?? null)) {
-            $payload['credentials'] = $data['credentials'];
         }
 
         return $payload;
@@ -407,8 +406,13 @@ class AdInventoryController extends Controller
             'ad_slot' => ['nullable', 'string', 'regex:/^\d{6,20}$/'],
             'format' => ['nullable', Rule::in(AdUnit::FORMATS)],
             'device' => ['required', Rule::in(AdPlacement::DEVICES)],
+            'page_target' => ['nullable', Rule::in(\App\Services\Advertising\AdManagerService::PAGES)],
             'priority' => ['nullable', 'integer', 'min:0', 'max:1000'],
+            'weight' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'markup' => ['nullable', 'string', 'max:20000'],
+            'fallback_code' => ['nullable', 'string', 'max:20000'],
+            'starts_at' => ['nullable', 'date'],
+            'ends_at' => ['nullable', 'date'],
         ]);
 
         return [
@@ -416,8 +420,13 @@ class AdInventoryController extends Controller
             'responsive' => $request->boolean('responsive'),
             'enabled' => $request->boolean('enabled'),
             'priority' => (int) ($data['priority'] ?? 0),
+            'weight' => (int) ($data['weight'] ?? 100),
+            'page_target' => $data['page_target'] ?? 'all',
             'ad_placement_id' => $data['ad_placement_id'] ?: null,
             'format' => $data['format'] ?: null,
+            'fallback_code' => $data['fallback_code'] ?? null,
+            'starts_at' => $data['starts_at'] ?? null,
+            'ends_at' => $data['ends_at'] ?? null,
         ];
     }
 
@@ -429,6 +438,9 @@ class AdInventoryController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:40'],
             'website' => ['nullable', 'url', 'max:255'],
+            'contact_name' => ['nullable', 'string', 'max:120'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['required', Rule::in(Advertiser::STATUSES)],
         ]);
 
@@ -445,6 +457,9 @@ class AdInventoryController extends Controller
             'start_at' => ['nullable', 'date'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
             'priority' => ['nullable', 'integer', 'min:0', 'max:1000'],
+            'weight' => ['nullable', 'integer', 'min:1', 'max:1000'],
+            'budget' => ['nullable', 'numeric', 'min:0'],
+            'notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['required', Rule::in(AdCampaign::STATUSES)],
             'click_url' => ['nullable', 'url', 'max:2048'],
         ]);
@@ -452,6 +467,9 @@ class AdInventoryController extends Controller
         return [
             ...$data,
             'priority' => (int) ($data['priority'] ?? 0),
+            'weight' => (int) ($data['weight'] ?? 100),
+            'budget' => $data['budget'] ?? null,
+            'notes' => $data['notes'] ?? null,
             'start_at' => $data['start_at'] ?? null,
             'end_at' => $data['end_at'] ?? null,
             'click_url' => $data['click_url'] ?? null,
@@ -535,6 +553,8 @@ class AdInventoryController extends Controller
 
     private function guard(): void
     {
-        abort_unless(auth()->user()->hasPermission('ads.manage'), 403);
+        $user = Auth::user();
+
+        abort_unless($user instanceof User && $user->hasPermission('ads.manage'), 403);
     }
 }

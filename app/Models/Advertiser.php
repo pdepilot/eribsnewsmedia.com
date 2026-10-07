@@ -12,9 +12,12 @@ class Advertiser extends Model
     protected $fillable = [
         'name',
         'company',
+        'contact_name',
         'email',
         'phone',
         'website',
+        'address',
+        'notes',
         'status',
     ];
 
