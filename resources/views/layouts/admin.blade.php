@@ -39,8 +39,15 @@
 @endphp
 <div class="vault">
     <aside class="rail" aria-label="Newsroom navigation">
-        <a class="rail-logo" href="{{ route('admin.dashboard') }}"><img src="{{ asset('images/favicon.png') }}" alt="ERIBS Media" width="52" height="52"></a>
-        <nav class="rail-nav">
+        <input class="rail-toggle-input" id="newsroom-toggle" type="checkbox" aria-controls="newsroom-menu" aria-expanded="false">
+        <div class="rail-top">
+            <a class="rail-logo" href="{{ route('admin.dashboard') }}"><img src="{{ asset('images/favicon.png') }}" alt="ERIBS Media" width="52" height="52"></a>
+            <label class="rail-toggle" for="newsroom-toggle">
+                <span class="rail-toggle-open">Menu</span>
+                <span class="rail-toggle-shut">Close</span>
+            </label>
+        </div>
+        <nav class="rail-nav" id="newsroom-menu">
             @foreach ($rail as $item)
                 @php
                     $itemStatus = $item[2] ?? null;
@@ -108,6 +115,27 @@
     }
     eribsClock();
     setInterval(eribsClock, 1000);
+
+    const newsroomToggle = document.getElementById('newsroom-toggle');
+    if (newsroomToggle) {
+        const closeNewsroomMenu = () => {
+            newsroomToggle.checked = false;
+            newsroomToggle.setAttribute('aria-expanded', 'false');
+        };
+        newsroomToggle.addEventListener('change', () => {
+            newsroomToggle.setAttribute('aria-expanded', newsroomToggle.checked ? 'true' : 'false');
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeNewsroomMenu();
+        });
+        document.addEventListener('click', (event) => {
+            if (!newsroomToggle.checked || event.target.closest('.rail')) return;
+            closeNewsroomMenu();
+        });
+        document.querySelectorAll('#newsroom-menu a').forEach((link) => {
+            link.addEventListener('click', closeNewsroomMenu);
+        });
+    }
 </script>
 </body>
 </html>

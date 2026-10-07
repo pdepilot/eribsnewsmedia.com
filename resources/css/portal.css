@@ -338,6 +338,27 @@ body.portal input {
     border-right: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+.rail-top {
+    display: contents;
+}
+
+.rail-toggle,
+.rail-toggle-shut {
+    display: none;
+}
+
+.rail-toggle-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    border: 0;
+    white-space: nowrap;
+}
+
 .rail-logo {
     flex-shrink: 0;
     padding: 0.15rem 0 0.55rem;
@@ -580,6 +601,7 @@ body.portal input {
 .workspace {
     display: grid;
     gap: 1.25rem;
+    min-width: 0;
     padding: clamp(1.2rem, 3vw, 2.2rem);
 }
 
@@ -1472,60 +1494,178 @@ body.portal input {
     }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 980px) {
     .vault {
         grid-template-columns: 1fr;
     }
 
     .rail {
+        position: sticky;
+        top: 0;
         height: auto;
-        flex-direction: row;
         width: 100%;
-        padding: 0.55rem;
-        overflow: hidden;
+        align-items: stretch;
+        padding: 0;
+        overflow: visible;
+        z-index: 50;
+    }
+
+    .rail-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 64px;
+        padding: 8px 14px;
+    }
+
+    .rail-logo {
+        padding: 0;
     }
 
     .rail-logo img {
-        width: 36px;
+        width: 40px;
+        height: auto;
     }
 
-    .rail-nav {
-        flex-direction: row;
-        overflow-x: auto;
-        overflow-y: hidden;
-        gap: 0.45rem;
+    .rail-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        min-width: 88px;
+        padding: 0 16px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--chalk);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+
+    .rail-toggle-shut {
+        display: none;
+    }
+
+    .rail-toggle-input:checked ~ .rail-top .rail-toggle-open {
+        display: none;
+    }
+
+    .rail-toggle-input:checked ~ .rail-top .rail-toggle-shut {
+        display: inline;
+    }
+
+    .rail-nav,
+    .rail-exit-form {
+        display: none;
+    }
+
+    .rail-toggle-input:checked ~ .rail-nav,
+    .rail.is-open .rail-nav {
+        display: flex;
+        position: fixed;
+        top: 64px;
+        right: 0;
+        bottom: 100px;
+        left: 0;
+        z-index: 60;
+        flex-direction: column;
+        gap: 6px;
+        overflow-y: auto;
+        padding: 10px 12px 16px;
+        background: #0d274c;
+    }
+
+    .rail-toggle-input:checked ~ .rail-exit-form,
+    .rail.is-open .rail-exit-form {
+        display: block;
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 61;
+        padding: 10px 12px 14px;
+        background: #0d274c;
     }
 
     .rail-btn {
-        width: auto;
-        min-height: 0;
-        flex-shrink: 0;
-        padding: 0.55rem 0.7rem;
+        min-height: 48px;
+        justify-items: start;
+        padding: 0 14px;
+        border-color: rgba(255, 255, 255, 0.14);
+        color: var(--chalk);
     }
 
     .rail-btn span,
     .rail-exit strong {
         writing-mode: horizontal-tb;
         transform: none;
+        font-size: 0.82rem;
+        letter-spacing: 0.12em;
     }
 
     .rail-btn.active::before {
-        left: 20%;
-        right: 20%;
-        top: auto;
-        bottom: -0.55rem;
-        width: auto;
-        height: 3px;
+        left: 0;
+        top: 18%;
+        bottom: 18%;
+        width: 3px;
     }
 
     .rail-exit {
-        min-height: 40px;
-        width: auto;
+        min-height: 48px;
+        width: 100%;
         flex-direction: row;
-        padding: 0.5rem 0.75rem;
+        gap: 0.7rem;
+        padding: 0.65rem 0.9rem;
+    }
+
+    body.portal:has(.rail-toggle-input:checked),
+    body.portal:has(.rail.is-open) {
+        overflow: hidden;
     }
 
     .metric-rail,
+    .pulse-metrics,
+    .setup-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .split,
+    .setup-board,
+    .pulse-board,
+    .seo-board,
+    .matrix,
+    .seo-pages,
+    .setup-role-grid,
+    .article-upload,
+    .setup-fields,
+    .setup-person,
+    .pulse-row {
+        grid-template-columns: 1fr;
+    }
+
+    .workspace :is(.overflow-x-auto, .rounded):has(table) {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .workspace input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+    .workspace select,
+    .workspace textarea {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .workspace > .flex,
+    .workspace li.flex {
+        flex-wrap: wrap;
+        gap: 0.65rem;
+    }
+}
+
+@media (max-width: 720px) {
     .split,
     .matrix,
     .status-row,
