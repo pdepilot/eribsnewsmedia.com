@@ -94,6 +94,7 @@
                 <svg width="18" height="14" viewBox="0 0 18 14" fill="currentColor" aria-hidden="true"><rect width="18" height="2"/><rect y="6" width="18" height="2"/><rect y="12" width="18" height="2"/></svg>
             </button>
             <ul class="nav-menu" :class="{ 'is-open': navOpen }">
+                <li class="drawer-close"><button type="button" @click="navOpen = false">Close</button></li>
                 <li class="drawer-logo"><a href="{{ route('home') }}" @click="navOpen = false"><img src="{{ asset('images/logo.png').'?v=2' }}" alt="{{ $site['siteName'] }}"></a></li>
                 <li><a class="nav-home @if(request()->routeIs('home')) is-current @endif" href="{{ route('home') }}" @click="navOpen = false">Home</a></li>
                 @foreach ($site['navCategories'] as $category)
@@ -103,7 +104,6 @@
                 <li><a class="@if(request()->routeIs('pages.about')) is-current @endif" href="{{ route('pages.about') }}">About Us</a></li>
                 <li><a class="@if(request()->routeIs('pages.privacy')) is-current @endif" href="{{ route('pages.privacy') }}">Privacy Policy</a></li>
                 <li><a class="@if(request()->routeIs('pages.terms')) is-current @endif" href="{{ route('pages.terms') }}">Terms of Use</a></li>
-                <li class="drawer-close"><button type="button" @click="navOpen = false">Close</button></li>
             </ul>
             <form class="search-pill" action="{{ route('search') }}" method="get" :class="{ 'is-open': searchOpen }" @click.outside="searchOpen = false">
                 <input type="search" name="q" placeholder="Search stories" aria-label="Search" :tabindex="searchOpen ? 0 : -1">
