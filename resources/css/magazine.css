@@ -580,9 +580,26 @@ body.boxed {
 .article-figure img { width: 100%; max-height: 520px; object-fit: cover; }
 .article-figure figcaption { color: var(--muted); font-size: 12px; margin-top: 6px; }
 .article-body { font-size: 16px; line-height: 1.85; }
-.share { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0; }
-.share a, .tag { border: 1px solid var(--line); padding: 6px 10px; font-size: 13px; }
-.share a:hover { border-color: var(--accent); color: var(--accent); }
+.share { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 18px 0; }
+.share a, .share button, .tag { border: 1px solid var(--line); padding: 6px 10px; font-size: 13px; }
+.share a, .share button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 8px 14px;
+    background: #fff;
+    color: #12356b;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+}
+.share a:hover, .share button:hover { border-color: var(--accent); color: var(--accent); }
+.share [hidden] { display: none; }
+.share-note, .article-views { color: var(--muted); font-size: 13px; font-style: normal; }
+.article-views { margin-left: 8px; }
 .tags { display: flex; gap: 8px; flex-wrap: wrap; }
 .crumbs { margin: 0 0 10px; }
 .related { margin-top: 28px; }

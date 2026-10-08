@@ -24,6 +24,7 @@
                 @if ($article->postedLabel())
                     <time datetime="{{ $article->published_at->toAtomString() }}">Posted {{ $article->postedLabel() }}</time>
                 @endif
+                <span class="article-views">{{ number_format((int) $article->views_count) }} {{ (int) $article->views_count === 1 ? 'view' : 'views' }}</span>
                 @if ($article->updated_at && $article->published_at && $article->updated_at->gt($article->published_at))
                     · Updated <time datetime="{{ $article->updated_at->toAtomString() }}">{{ $article->updated_at->format('F j, Y g:i A') }}</time>
                 @endif
@@ -59,10 +60,7 @@
                     @endforeach
                 </div>
             @endif
-            <div class="share">
-                <a href="https://twitter.com/intent/tweet?url={{ urlencode($article->canonicalUrl()) }}&text={{ urlencode($article->title) }}" rel="noopener" target="_blank">Share on X</a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($article->canonicalUrl()) }}" rel="noopener" target="_blank">Share on Facebook</a>
-            </div>
+            <x-article-share :article="$article" />
             <x-ad placement="article_bottom" />
             <section id="comments" class="comments">
                 <h2 class="mag-title"><span>{{ $article->comments_count }} comment{{ (int) $article->comments_count > 1 ? 's' : '' }}</span></h2>

@@ -192,18 +192,55 @@ class ArticleService
 
     public function recordView(Article $article): void
     {
-        $seen = session('viewed_articles', []);
-        if (in_array($article->id, $seen, true)) {
+        $seen = session('article_viewed_at', []);
+        if (! is_array($seen)) {
+            $seen = [];
+        }
+
+        foreach (session('viewed_articles', []) as $id) {
+            if (! isset($seen[$id])) {
+                $seen[$id] = now()->getTimestamp();
+            }
+        }
+
+        $last = $seen[$article->id] ?? null;
+        if (is_numeric($last) && (int) $last > now()->subHours(6)->getTimestamp()) {
+            session(['article_viewed_at' => $this->recentViews($seen)]);
+
             return;
         }
 
-        $article->increment('views_count');
-        $article->views()->create([
-            'visitor_hash' => hash('sha256', (string) session()->getId()),
-        ]);
+        $hash = hash('sha256', (string) session()->getId());
+        $alreadyStored = $article->views()
+            ->where('visitor_hash', $hash)
+            ->where('created_at', '>=', now()->subHours(6))
+            ->exists();
 
-        $seen[] = $article->id;
-        session(['viewed_articles' => array_slice($seen, -40)]);
+        if (! $alreadyStored) {
+            $article->increment('views_count');
+            $article->views()->create([
+                'visitor_hash' => $hash,
+            ]);
+        }
+
+        $seen[$article->id] = now()->getTimestamp();
+        session([
+            'article_viewed_at' => $this->recentViews($seen),
+            'viewed_articles' => [],
+        ]);
+    }
+
+    private function recentViews(array $seen): array
+    {
+        $cutoff = now()->subHours(6)->getTimestamp();
+        $seen = array_filter($seen, fn ($at) => is_numeric($at) && (int) $at > $cutoff);
+
+        if (count($seen) > 40) {
+            asort($seen);
+            $seen = array_slice($seen, -40, null, true);
+        }
+
+        return $seen;
     }
 
     private function attributes(User $user, array $data, ?Article $article = null): array

@@ -17,6 +17,7 @@
         'datePublished' => optional($article->published_at)->toAtomString(),
         'dateModified' => optional($article->updated_at)->toAtomString(),
         'description' => $pageDescription,
+        'url' => $pageCanonical,
         'mainEntityOfPage' => $pageCanonical,
         'author' => [
             '@type' => 'Person',

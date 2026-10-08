@@ -95,6 +95,33 @@ class Article extends Model
         return $this->hasMany(ArticleView::class);
     }
 
+    public function scopeMostViewed(Builder $query): Builder
+    {
+        return $query->orderByDesc('views_count')->orderByDesc('id');
+    }
+
+    public function scopeMostViewedSince(Builder $query, \DateTimeInterface $since): Builder
+    {
+        return $query->withCount([
+            'views as period_views' => fn (Builder $views) => $views->where('created_at', '>=', $since),
+        ])->orderByDesc('period_views')->orderByDesc('views_count');
+    }
+
+    public function scopeMostViewedToday(Builder $query): Builder
+    {
+        return $query->mostViewedSince(now()->timezone('Africa/Lagos')->startOfDay());
+    }
+
+    public function scopeMostViewedThisWeek(Builder $query): Builder
+    {
+        return $query->mostViewedSince(now()->timezone('Africa/Lagos')->startOfWeek());
+    }
+
+    public function scopeMostViewedThisMonth(Builder $query): Builder
+    {
+        return $query->mostViewedSince(now()->timezone('Africa/Lagos')->startOfMonth());
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
@@ -190,7 +217,21 @@ class Article extends Model
 
     public function canonicalUrl(): string
     {
-        return $this->canonical_url ?: route('articles.show', $this);
+        $path = '/'.ltrim(route('articles.show', $this, false), '/');
+        $root = rtrim((string) config('app.url'), '/');
+
+        if ($root === '') {
+            $root = rtrim(url('/'), '/');
+        }
+
+        if (app()->environment('production') && str_starts_with(strtolower($root), 'http://')) {
+            $root = 'https://'.substr($root, 7);
+        }
+
+        $absolute = $root.$path;
+        $query = strpos($absolute, '?');
+
+        return $query === false ? $absolute : substr($absolute, 0, $query);
     }
 
     public function seoTitle(): string

@@ -72,3 +72,39 @@
         line-height: 1;
     }
 }
+
+.share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 18px 0;
+}
+
+.share a,
+.share button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid rgba(18, 53, 107, .16);
+    background: #fff;
+    color: #12356b;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.share [hidden] { display: none; }
+
+.share-note,
+.article-views {
+    color: #5c6b82;
+    font-size: 13px;
+    font-style: normal;
+}
+
+.article-views { margin-left: 8px; }
