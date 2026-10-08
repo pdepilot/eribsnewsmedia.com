@@ -150,7 +150,7 @@ body.boxed {
     100% { box-shadow: 0 0 0 0 rgba(242, 107, 29, 0); }
 }
 .wire-count { margin-left: auto; color: #8ea0b8; letter-spacing: .08em; }
-.ticker-track { position: relative; min-height: 34px; margin-top: 4px; }
+.ticker-track { position: relative; min-height: 42px; margin-top: 4px; }
 .ticker-track a, .ticker-track > span, .ticker-empty {
     display: block;
     color: #10284d;
@@ -163,7 +163,12 @@ body.boxed {
 .ticker-track [data-breaking-item] {
     display: none;
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    height: 42px;
+    line-height: 42px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -311,8 +316,8 @@ body.boxed {
     }
     .wire-ghost, .ticker-nav, .wire-count { display: none; }
     .wire-kicker { flex: none; letter-spacing: .08em; font-size: 10px; }
-    .ticker-track { flex: 1; min-width: 0; min-height: 1.35em; margin: 0; }
-    .ticker-track a, .ticker-track > span { font-size: 14px; }
+    .ticker-track { flex: 1; min-width: 0; min-height: 24px; margin: 0; }
+    .ticker-track [data-breaking-item] { height: 24px; line-height: 24px; font-size: 15px; }
     .nav-bar {
         position: absolute;
         left: 0;

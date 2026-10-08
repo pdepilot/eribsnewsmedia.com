@@ -76,7 +76,7 @@ class NewsroomTest extends TestCase
 
     public function test_public_pages_and_feeds_render(): void
     {
-        $this->get('/')->assertOk()->assertSee('ERIBS Media')->assertSee('Breaking News')->assertSee('name="viewport"', false);
+        $this->get('/')->assertOk()->assertSee('ERIBS Media')->assertSee('Breaking News')->assertSee('css/header.css', false)->assertSee('name="viewport"', false);
         $this->get(route('articles.latest'))->assertOk();
         $this->get(route('categories.show', 'news'))->assertOk()->assertSee('News');
         $this->get(route('categories.show', 'politics'))->assertOk();

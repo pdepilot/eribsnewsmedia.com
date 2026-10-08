@@ -1,0 +1,74 @@
+/* Loads after the compiled sheet so a git pull updates the header without npm. */
+
+.ticker-track {
+    min-height: 42px;
+}
+
+.ticker-track [data-breaking-item] {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    height: 42px;
+    line-height: 42px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ticker-track [data-breaking-item].is-on {
+    display: block;
+}
+
+@media (max-width: 980px) {
+    .ticker-track {
+        min-height: 24px;
+    }
+
+    .ticker-track [data-breaking-item] {
+        height: 24px;
+        line-height: 24px;
+        font-size: 15px;
+    }
+
+    .masthead:has(.nav-menu.is-open) {
+        z-index: 80;
+    }
+
+    .nav-bar:has(.nav-menu.is-open),
+    .nav-row:has(.nav-menu.is-open),
+    .nav-menu.is-open,
+    .nav-menu.is-open a,
+    .nav-menu.is-open button {
+        pointer-events: auto;
+    }
+
+    .nav-backdrop.is-open {
+        z-index: 45;
+    }
+
+    .nav-menu .drawer-close {
+        position: absolute;
+        top: calc(22px + env(safe-area-inset-top));
+        right: 20px;
+        left: auto;
+        width: auto;
+        margin: 0;
+        font-size: 12px;
+        z-index: 2;
+    }
+
+    .nav-menu .drawer-close button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0 2px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+    }
+}
