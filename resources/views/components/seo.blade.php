@@ -37,6 +37,14 @@
         '@type' => 'WebSite',
         'name' => $siteName,
         'url' => url('/'),
+        'publisher' => array_filter([
+            '@type' => 'Organization',
+            'name' => $publisher,
+            'logo' => ($publisherLogo = app(\App\Services\Settings::class)->logoUrl($settings['publisher_logo'] ?? null)) ? [
+                '@type' => 'ImageObject',
+                'url' => $publisherLogo,
+            ] : null,
+        ]),
         'potentialAction' => [
             '@type' => 'SearchAction',
             'target' => route('search').'?q={search_term_string}',
