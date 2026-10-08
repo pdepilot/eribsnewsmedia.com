@@ -224,14 +224,34 @@ class Article extends Model
             $root = rtrim(url('/'), '/');
         }
 
-        if (app()->environment('production') && str_starts_with(strtolower($root), 'http://')) {
-            $root = 'https://'.substr($root, 7);
+        if ($this->canonicalUsesHttps($root)) {
+            $root = preg_replace('#^http://#i', 'https://', $root) ?? $root;
         }
 
         $absolute = $root.$path;
         $query = strpos($absolute, '?');
 
         return $query === false ? $absolute : substr($absolute, 0, $query);
+    }
+
+    private function canonicalUsesHttps(string $root): bool
+    {
+        if (str_starts_with(strtolower($root), 'https://')) {
+            return true;
+        }
+
+        if (app()->environment('production') || $this->requestIsSecure()) {
+            return true;
+        }
+
+        $host = strtolower((string) parse_url($root, PHP_URL_HOST));
+
+        return ! in_array($host, ['localhost', '127.0.0.1', '::1'], true);
+    }
+
+    private function requestIsSecure(): bool
+    {
+        return app()->bound('request') && request()->isSecure();
     }
 
     public function seoTitle(): string

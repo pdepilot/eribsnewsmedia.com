@@ -72,6 +72,50 @@ class ArticleEngagementTest extends TestCase
         );
     }
 
+    public function test_public_http_app_url_canonicalizes_to_https(): void
+    {
+        $this->app['env'] = 'local';
+        config(['app.url' => 'http://desk.example.test']);
+
+        $article = $this->article('Public host desk note');
+        $canonical = 'https://desk.example.test/article/'.$article->slug;
+
+        $this->assertSame($canonical, $article->canonicalUrl());
+
+        $this->get(route('articles.show', $article))
+            ->assertOk()
+            ->assertSee('rel="canonical" href="'.$canonical.'"', false)
+            ->assertSee('property="og:url" content="'.$canonical.'"', false);
+    }
+
+    public function test_local_http_canonical_stays_http(): void
+    {
+        $this->app['env'] = 'local';
+        config(['app.url' => 'http://localhost:8000']);
+
+        $article = $this->article('Local desk note');
+
+        $this->assertSame(
+            'http://localhost:8000/article/'.$article->slug,
+            $article->canonicalUrl(),
+        );
+    }
+
+    public function test_forwarded_https_upgrades_the_canonical_url(): void
+    {
+        $this->app['env'] = 'local';
+        config(['app.url' => 'http://127.0.0.1:8000']);
+
+        $article = $this->article('Forwarded desk note');
+        $canonical = 'https://127.0.0.1:8000/article/'.$article->slug;
+
+        $this->withHeader('X-Forwarded-Proto', 'https')
+            ->get(route('articles.show', $article))
+            ->assertOk()
+            ->assertSee('rel="canonical" href="'.$canonical.'"', false)
+            ->assertSee('property="og:url" content="'.$canonical.'"', false);
+    }
+
     public function test_share_links_use_the_canonical_url(): void
     {
         $article = $this->article('Share desk note');

@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('ads:sync-schedules')->everyMinute()->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
         $middleware->redirectGuestsTo('/portal/login');
         $middleware->redirectUsersTo('/portal');
         $middleware->alias([
